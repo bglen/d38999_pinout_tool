@@ -1,0 +1,563 @@
+{
+  "tool": "d38999-pinout",
+  "version": 2,
+  "partNumber": "24FG35PN",
+  "arrangement": "21-35",
+  "socket": false,
+  "rear": false,
+  "pins": {
+    "1": {
+      "signal": "B10",
+      "color": "#2563eb",
+      "group": 8
+    },
+    "2": {
+      "signal": "GND",
+      "color": "#dc2626",
+      "group": 8
+    },
+    "3": {
+      "signal": "LED-9",
+      "color": "#16a34a",
+      "group": 9
+    },
+    "4": {
+      "signal": "B9",
+      "color": "#d97706",
+      "group": 9
+    },
+    "5": {
+      "signal": "GND",
+      "color": "#7c3aed",
+      "group": 9
+    },
+    "6": {
+      "signal": "LED-8",
+      "color": "#0891b2",
+      "group": 10
+    },
+    "7": {
+      "signal": "B8",
+      "color": "#db2777",
+      "group": 10
+    },
+    "8": {
+      "signal": "GND",
+      "color": "#65a30d",
+      "group": 10
+    },
+    "9": {
+      "signal": "LED7",
+      "color": "#ea580c",
+      "group": 11
+    },
+    "10": {
+      "signal": "B7",
+      "color": "#0d9488",
+      "group": 11
+    },
+    "11": {
+      "signal": "GND",
+      "color": "#9333ea",
+      "group": 11
+    },
+    "12": {
+      "signal": "LED-6",
+      "color": "#b91c1c",
+      "group": 12
+    },
+    "13": {
+      "signal": "B6",
+      "color": "#4f46e5",
+      "group": 12
+    },
+    "14": {
+      "signal": "GND",
+      "color": "#ca8a04",
+      "group": 12
+    },
+    "15": {
+      "signal": "LED-5",
+      "color": "#be123c",
+      "group": 13
+    },
+    "16": {
+      "signal": "B5",
+      "color": "#047857",
+      "group": 13
+    },
+    "17": {
+      "signal": "GND",
+      "color": "#b14d25",
+      "group": 13
+    },
+    "18": {
+      "signal": "LED-4",
+      "color": "#2cce89",
+      "group": 14
+    },
+    "19": {
+      "signal": "B4",
+      "color": "#c446d8",
+      "group": 14
+    },
+    "20": {
+      "signal": "GND",
+      "color": "#9bb125",
+      "group": 14
+    },
+    "21": {
+      "signal": "LED-3",
+      "color": "#2c85ce",
+      "group": 15
+    },
+    "22": {
+      "signal": "B3",
+      "color": "#d8466b",
+      "group": 15
+    },
+    "23": {
+      "signal": "GND",
+      "color": "#25b12a",
+      "group": 15
+    },
+    "24": {
+      "signal": "LED-2",
+      "color": "#612cce",
+      "group": 16
+    },
+    "25": {
+      "signal": "B2",
+      "color": "#d8a046",
+      "group": 16
+    },
+    "26": {
+      "signal": "GND",
+      "color": "#25b1a4",
+      "group": 16
+    },
+    "27": {
+      "signal": "LED-1",
+      "color": "#ce2cad",
+      "group": 17
+    },
+    "28": {
+      "signal": "B1",
+      "color": "#90d846",
+      "group": 17
+    },
+    "29": {
+      "signal": "LED-10",
+      "color": "#2543b1",
+      "group": 8
+    },
+    "30": {
+      "signal": "B20",
+      "color": "#ce382c",
+      "group": 18
+    },
+    "31": {
+      "signal": "GND",
+      "color": "#46d87c",
+      "group": 18
+    },
+    "32": {
+      "signal": "B19",
+      "color": "#8125b1",
+      "group": 19
+    },
+    "33": {
+      "signal": "GND",
+      "color": "#cec62c",
+      "group": 19
+    },
+    "34": {
+      "signal": "B18",
+      "color": "#46b4d8",
+      "group": 20
+    },
+    "35": {
+      "signal": "GND",
+      "color": "#b12566",
+      "group": 20
+    },
+    "36": {
+      "signal": "B17",
+      "color": "#48ce2c",
+      "group": 21
+    },
+    "37": {
+      "signal": "GND",
+      "color": "#5746d8",
+      "group": 21
+    },
+    "38": {
+      "signal": "B16",
+      "color": "#b15f25",
+      "group": 22
+    },
+    "39": {
+      "signal": "GND",
+      "color": "#2cce9e",
+      "group": 22
+    },
+    "40": {
+      "signal": "B15",
+      "color": "#d746d8",
+      "group": 23
+    },
+    "41": {
+      "signal": "GND",
+      "color": "#89b125",
+      "group": 23
+    },
+    "42": {
+      "signal": "B14",
+      "color": "#2c70ce",
+      "group": 24
+    },
+    "43": {
+      "signal": "GND",
+      "color": "#d84659",
+      "group": 24
+    },
+    "44": {
+      "signal": "B13",
+      "color": "#25b13c",
+      "group": 25
+    },
+    "45": {
+      "signal": "GND",
+      "color": "#752cce",
+      "group": 25
+    },
+    "46": {
+      "signal": "B12",
+      "color": "#d8b346",
+      "group": 26
+    },
+    "47": {
+      "signal": "GND",
+      "color": "#25acb1",
+      "group": 26
+    },
+    "48": {
+      "signal": "LED-11",
+      "color": "#ce2c99",
+      "group": 27
+    },
+    "49": {
+      "signal": "B11",
+      "color": "#7dd846",
+      "group": 27
+    },
+    "50": {
+      "signal": "GND",
+      "color": "#2532b1",
+      "group": 17
+    },
+    "51": {
+      "signal": "B21",
+      "color": "#ce4d2c",
+      "group": 28
+    },
+    "52": {
+      "signal": "GND",
+      "color": "#46d88e",
+      "group": 28
+    },
+    "53": {
+      "signal": "B28",
+      "color": "#9325b1",
+      "group": 29
+    },
+    "54": {
+      "signal": "GND",
+      "color": "#c1ce2c",
+      "group": 29
+    },
+    "55": {
+      "signal": "B27",
+      "color": "#46a2d8",
+      "group": 30
+    },
+    "56": {
+      "signal": "GND",
+      "color": "#b12554",
+      "group": 30
+    },
+    "57": {
+      "signal": "B26",
+      "color": "#33ce2c",
+      "group": 31
+    },
+    "58": {
+      "signal": "GND",
+      "color": "#6a46d8",
+      "group": 31
+    },
+    "59": {
+      "signal": "B25",
+      "color": "#b17125",
+      "group": 32
+    },
+    "60": {
+      "signal": "GND",
+      "color": "#2cceb3",
+      "group": 32
+    },
+    "61": {
+      "signal": "B24",
+      "color": "#d846c6",
+      "group": 33
+    },
+    "62": {
+      "signal": "GND",
+      "color": "#77b125",
+      "group": 33
+    },
+    "63": {
+      "signal": "B23",
+      "color": "#2c5bce",
+      "group": 34
+    },
+    "64": {
+      "signal": "GND",
+      "color": "#d84646",
+      "group": 34
+    },
+    "65": {
+      "signal": "B22",
+      "color": "#25b14e",
+      "group": 35
+    },
+    "66": {
+      "signal": "GND",
+      "color": "#8a2cce",
+      "group": 27
+    },
+    "67": {
+      "signal": "LED-12",
+      "color": "#d8c546",
+      "group": 36
+    },
+    "68": {
+      "signal": "GND",
+      "color": "#259ab1",
+      "group": 36
+    },
+    "69": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "70": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "71": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "72": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "73": {
+      "signal": "LED-14",
+      "color": "#46d8a1",
+      "group": 37
+    },
+    "74": {
+      "signal": "GND",
+      "color": "#a525b1",
+      "group": 37
+    },
+    "75": {
+      "signal": "LED-13",
+      "color": "#acce2c",
+      "group": 38
+    },
+    "76": {
+      "signal": "GND",
+      "color": "#468fd8",
+      "group": 35
+    },
+    "77": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "78": {
+      "signal": "NC",
+      "color": "",
+      "group": 0
+    },
+    "79": {
+      "signal": "GND",
+      "color": "#7d46d8",
+      "group": 38
+    }
+  },
+  "groups": [
+    {
+      "gid": 8,
+      "name": "LIT_BTN_10",
+      "color": "#b18225"
+    },
+    {
+      "gid": 9,
+      "name": "LIT_BTN_9",
+      "color": "#2ccec7"
+    },
+    {
+      "gid": 10,
+      "name": "LIT_BTN_8",
+      "color": "#d846b3"
+    },
+    {
+      "gid": 11,
+      "name": "LIT_BTN_7",
+      "color": "#65b125"
+    },
+    {
+      "gid": 12,
+      "name": "LIT_BTN_6",
+      "color": "#2c47ce"
+    },
+    {
+      "gid": 13,
+      "name": "LIT_BTN_5",
+      "color": "#d85846"
+    },
+    {
+      "gid": 14,
+      "name": "LIT_BTN_4",
+      "color": "#25b160"
+    },
+    {
+      "gid": 15,
+      "name": "LIT_BTN_3",
+      "color": "#9f2cce"
+    },
+    {
+      "gid": 16,
+      "name": "LIT_BTN_2",
+      "color": "#d8d846"
+    },
+    {
+      "gid": 17,
+      "name": "LIT_BTN_1",
+      "color": "#2588b1"
+    },
+    {
+      "gid": 18,
+      "name": "BTN_20",
+      "color": "#ce2c6f"
+    },
+    {
+      "gid": 19,
+      "name": "BTN_19",
+      "color": "#58d846"
+    },
+    {
+      "gid": 20,
+      "name": "BTN_18",
+      "color": "#3d25b1"
+    },
+    {
+      "gid": 21,
+      "name": "BTN_17",
+      "color": "#ce762c"
+    },
+    {
+      "gid": 22,
+      "name": "BTN_16",
+      "color": "#46d8b4"
+    },
+    {
+      "gid": 23,
+      "name": "BTN_15",
+      "color": "#b125ab"
+    },
+    {
+      "gid": 24,
+      "name": "BTN_14",
+      "color": "#98ce2c"
+    },
+    {
+      "gid": 25,
+      "name": "BTN_13",
+      "color": "#467cd8"
+    },
+    {
+      "gid": 26,
+      "name": "BTN_12",
+      "color": "#b12531"
+    },
+    {
+      "gid": 27,
+      "name": "LIT_BTN_11",
+      "color": "#2cce4e"
+    },
+    {
+      "gid": 28,
+      "name": "BTN_21",
+      "color": "#8f46d8"
+    },
+    {
+      "gid": 29,
+      "name": "BTN_28",
+      "color": "#b19425"
+    },
+    {
+      "gid": 30,
+      "name": "BTN_27",
+      "color": "#2cc0ce"
+    },
+    {
+      "gid": 31,
+      "name": "BTN_26",
+      "color": "#d846a1"
+    },
+    {
+      "gid": 32,
+      "name": "BTN_25",
+      "color": "#53b125"
+    },
+    {
+      "gid": 33,
+      "name": "BTN_24",
+      "color": "#2c32ce"
+    },
+    {
+      "gid": 34,
+      "name": "BTN_23",
+      "color": "#d86b46"
+    },
+    {
+      "gid": 35,
+      "name": "BTN_22",
+      "color": "#25b171"
+    },
+    {
+      "gid": 36,
+      "name": "IND_LED_12",
+      "color": "#b42cce"
+    },
+    {
+      "gid": 37,
+      "name": "IND_LED_14",
+      "color": "#ce2c84"
+    },
+    {
+      "gid": 38,
+      "name": "IND_LED_13",
+      "color": "#6bd846"
+    }
+  ],
+  "nextGid": 39
+}

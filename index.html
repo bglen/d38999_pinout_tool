@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D38999 Pinout Tool</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="bar">
+  <h1>D38999 Pinout Tool</h1>
+  <form id="pn-form" class="pn" autocomplete="off">
+    <label class="pn-prefix" for="pn">D38999/</label>
+    <input id="pn" name="pn" placeholder="24FA35SN" spellcheck="false" size="16">
+    <button type="submit">Decode</button>
+  </form>
+  <label class="pick">or arrangement
+    <select id="arr-pick"><option value="">&mdash;</option></select>
+  </label>
+  <label class="pick" title="Part number printed on the SVG/PNG and used in file names, for a connector with this arrangement whose part number the tool does not decode. Leave blank to use the decoded one.">Output PN
+    <input id="pn-override" spellcheck="false">
+  </label>
+  <span class="spacer"></span>
+  <button id="btn-clear" type="button" class="ghost" title="Reset every contact to NC and remove all groups">Clear</button>
+  <button id="btn-save" type="button" class="ghost" title="Download this pinout as a .json project file">Save</button>
+  <button id="btn-load" type="button" class="ghost" title="Load a .json project file">Load</button>
+  <button id="btn-svg" type="button" class="ghost">SVG</button>
+  <button id="btn-png" type="button" class="ghost">PNG</button>
+  <input id="file-in" type="file" accept="application/json,.json" hidden>
+</header>
+
+<div id="banner" class="banner" hidden></div>
+
+<section id="decode" class="decode" hidden></section>
+
+<main class="layout">
+
+  <section class="pane diagram-pane">
+    <div class="pane-head">
+      <strong>Contact arrangement</strong>
+      <span id="view-note" class="muted"></span>
+      <span class="spacer"></span>
+      <label class="chk" title="Set from the part number">Insert
+        <select id="opt-gender">
+          <option value="pin">Pin</option>
+          <option value="socket">Socket</option>
+        </select>
+      </label>
+      <label class="chk" title="View from the wire entry side, where contacts are inserted">
+        <input type="checkbox" id="opt-rear"> Rear view</label>
+      <label class="chk">Labels
+        <select id="opt-labels">
+          <option value="id">ID</option>
+          <option value="signal">Signal</option>
+          <option value="both">ID + signal</option>
+          <option value="none">None</option>
+        </select>
+      </label>
+      <button id="btn-fit" type="button" class="ghost sm">Fit</button>
+    </div>
+    <div id="stage" class="stage">
+      <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="rubber" class="rubber" hidden></div>
+      <div id="pop" class="pop" hidden>
+        <input id="pop-signal" type="text" spellcheck="false" autocomplete="off" placeholder="NC"
+               title="Enter saves · Tab next pin · Esc cancels">
+      </div>
+      <p id="empty" class="empty">Enter a part number above &mdash; for example <code>24FA35SN</code>.</p>
+    </div>
+    <div class="pane-foot muted">
+      Left-drag marquee-selects &middot; click a contact to edit it &middot; Ctrl/&#8679; adds to the selection
+      &middot; right-drag or Space-drag pans &middot; wheel zooms
+    </div>
+  </section>
+
+  <section class="pane side">
+    <div class="pane-head">
+      <strong>Pins</strong>
+      <span id="sel-count" class="muted"></span>
+      <span class="spacer"></span>
+      <input id="filter" placeholder="Filter pins / signals" size="14">
+    </div>
+
+    <div id="sel-actions" class="sel-actions" hidden>
+      <button id="btn-group" type="button">Group selected</button>
+      <select id="add-to-group" title="Add the selection to an existing group"></select>
+      <button id="btn-ungroup" type="button" class="ghost">Ungroup</button>
+      <label class="chk">Colour <input type="color" id="bulk-color" value="#3b82f6"></label>
+      <button id="btn-bulk-signal" type="button" class="ghost">Set signal&hellip;</button>
+      <button id="btn-clear-sel" type="button" class="ghost">Deselect</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="pins">
+        <thead>
+          <tr><th class="c-id">Pin</th><th class="c-size">Size</th><th>Signal</th>
+              <th class="c-col">Colour</th><th class="c-grp">Group</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="pane-head sub">
+      <strong>Groups</strong>
+    </div>
+    <div id="groups" class="groups"></div>
+  </section>
+
+</main>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
