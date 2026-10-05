@@ -411,9 +411,14 @@ function pin(id) {
 }
 
 /** Older saves used an empty signal for an unassigned contact. */
+/* NC contacts belong to no group; older saves may have them in one. */
 function normalizePins() {
-  for (const id in state.pins) if (isNC(state.pins[id].signal)) state.pins[id].signal = NC;
+  for (const id in state.pins)
+    if (isNC(state.pins[id].signal)) Object.assign(state.pins[id], { signal: NC, group: 0 });
 }
+
+/** A contact's signal for printing: '' when it is NC or has no record yet. */
+const signalText = (id) => (state.pins[id] && !isNC(state.pins[id].signal) ? state.pins[id].signal.trim() : '');
 
 function hslHex(h, s, l) {
   s /= 100; l /= 100;
@@ -447,7 +452,10 @@ function setSignal(id, value) {
   scheduleDiagram();
 }
 
-/** End of an edit: a contact left blank or NC goes back to NC with the colour it had before. */
+/**
+ * End of an edit: a contact left blank or named NC goes back to NC, with the colour it
+ * had before if it was already NC, and leaves its group.
+ */
 function commitSignal(id, before) {
   const rec = pin(id);
   if (!isNC(rec.signal)) return;
@@ -456,6 +464,25 @@ function commitSignal(id, before) {
   refreshRow(id);
   save();
   scheduleDiagram();
+  if (rec.group) { rec.group = 0; renderAllSoon(); }
+}
+
+/* Re-render everything once the current edit settles (an Enter in the pin table moves
+   focus first), then put the focus back in the pin row that had it. */
+let renderAllTimer = 0;
+function renderAllSoon() {
+  clearTimeout(renderAllTimer);
+  renderAllTimer = setTimeout(() => {
+    const box = document.activeElement;
+    const row = box && box.matches('#pins input[type=text]') && box.closest('tr').dataset.id;
+    const whole = row && box.selectionStart === 0 && box.selectionEnd === box.value.length;
+    renderAll();
+    if (!row) return;
+    const again = document.querySelector(`#pins tbody tr[data-id="${CSS.escape(row)}"] input[type=text]`);
+    if (!again) return;
+    again.focus();
+    if (whole) again.select();
+  });
 }
 
 function refreshRow(id) {
@@ -472,6 +499,7 @@ function groupOf(id) {
   return g ? state.groups.find((x) => x.gid === g) : null;
 }
 function pinColor(id) {
+  if (state.pins[id] && isNC(state.pins[id].signal)) return '';   // NC is grey, even mid-edit
   const g = groupOf(id);
   if (g) return g.color;
   return (state.pins[id] && state.pins[id].color) || '';
@@ -1096,16 +1124,20 @@ const EX = {
 const PNG_SCALE = 2;
 
 /** Legend sections: each group in order, then ungrouped contacts that have a signal. */
+/** Legend sections: the groups by name, then ungrouped signals, then every NC contact. */
 function legendSections() {
   const pts = state.arr.pts;
+  const nc = (p) => !state.pins[p.id] || isNC(state.pins[p.id].signal);
   const out = [];
   for (const g of state.groups) {
-    const ids = pts.filter((p) => state.pins[p.id] && state.pins[p.id].group === g.gid).map((p) => p.id);
+    const ids = pts.filter((p) => !nc(p) && state.pins[p.id].group === g.gid).map((p) => p.id);
     if (ids.length) out.push({ name: g.name.trim() || 'Group', color: g.color, ids });
   }
-  const loose = pts.filter((p) => !groupOf(p.id) && state.pins[p.id] &&
-                                  !isNC(state.pins[p.id].signal)).map((p) => p.id);
+  out.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+  const loose = pts.filter((p) => !nc(p) && !groupOf(p.id)).map((p) => p.id);
   if (loose.length) out.push({ name: out.length ? 'Ungrouped' : 'Signals', color: null, ids: loose });
+  const unused = pts.filter(nc).map((p) => p.id);
+  if (unused.length) out.push({ name: 'No Connect', color: null, ids: unused });
   return out;
 }
 
@@ -1182,7 +1214,7 @@ function exportSvg() {
     const ids = sections.flatMap((s) => s.ids);
     sigX = idX + Math.max(...ids.map((id) => textWidth(id, idFont))) + space * 1.3;
     const sigW = Math.max(textWidth(NC, sigFont),
-                          ...ids.map((id) => textWidth(state.pins[id].signal.trim(), sigFont)));
+                          ...ids.map((id) => textWidth(signalText(id), sigFont)));
     const headW = Math.max(...sections.map((s) =>
       swatch + space + textWidth(`${s.name} (cont.)`, headFont)));
     colW = Math.ceil(Math.max(sigX + sigW, headW));
@@ -1234,7 +1266,7 @@ function exportSvg() {
                                      stroke: it.s.color || EX.rule, 'stroke-width': EX.font / 12 }));
         } else {
           const cy = it.y + EX.row / 2;
-          const signal = isNC(state.pins[it.id].signal) ? '' : state.pins[it.id].signal.trim();
+          const signal = signalText(it.id);
           g.appendChild(el('circle', { cx: dot / 2, cy, r: dot / 2, fill: pinColor(it.id) || COLOR.pin,
                                        stroke: pinColor(it.id) ? 'none' : COLOR.pinEdge,
                                        'stroke-width': EX.font / 24 }));

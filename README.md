@@ -56,7 +56,8 @@ a whole connector can be named without the mouse.
 
 Every contact starts as `NC`, drawn grey. Naming one gives it a colour no other contact
 or group is using (the group palette first, then generated hues); renaming keeps that
-colour, and clearing the name (or typing `NC`) returns it to NC and grey. The swatch in
+colour, and clearing the name or typing `NC` (any case) returns it to NC and grey and takes
+it out of its group. The swatch in
 the table overrides the automatic colour. `Clear` (after confirming) resets every contact
 on the connector to NC and removes all groups.
 
@@ -87,7 +88,9 @@ the selection.
 centred over the view direction ("Viewed from mating face" or "Viewed from rear (wire
 entry side)"), the drawing at the fitted
 view, and to its right, vertically centred, a legend listing each group's pins and
-signals followed by any ungrouped pins that have a signal. Long legends flow into up to
+signals, with the groups in name order (Group 2 before Group 10), then any ungrouped pins
+that have a signal, then a `No Connect` section listing every NC contact. Long legends
+flow into up to
 four columns. Sizes are in `EX` in `app.js`; the PNG is rendered at 2×.
 To label a connector the tool does not decode but that shares a supported arrangement
 (another vendor's part number, another slash sheet), type its part number in
