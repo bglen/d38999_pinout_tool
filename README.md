@@ -16,12 +16,21 @@ MIL-STD-1560C page the coordinates came from. Anything questionable — an inact
 class, a shell size the slash sheet does not list, a series whose keying is not
 tabulated — appears in the notes bar rather than blocking the drawing.
 
-The `or arrangement` menu loads any of the 166 arrangements directly and rewrites the
+The `or arrangement` menu loads any of the 166 D38999 arrangements directly and rewrites the
 part number to match, keeping the current slash sheet, class, contact style and
 polarization and changing only the shell code and arrangement (single-digit arrangements
 are written with a leading zero, e.g. `24FA03SN`). The even (series II) shell sizes have
 no D38999 shell code, so those arrangements load without a part number and are labelled
 by arrangement, with a note saying why.
+
+**Glenair Series 806.** The menu's last group, `Glenair 806`, holds 26 Glenair 806
+Mil-Aero insert arrangements, among them 16-32 (28 × #22HD, 4 × #12). They are separate
+from the D38999 arrangements of the same number, which are different layouts. They
+load without a part number (806 part numbers are not decoded) and are titled "Glenair
+806 arrangement 16-32"; type the real part number in `Output PN` to label exports. The
+shell is drawn generically, with the master key at the top, because 806 shell
+dimensions are not in the data. Glenair numbers its inserts the same way MIL-STD-1560C
+does (pin mating face), so `Insert` and `Rear view` mirror the drawing the same way.
 
 **Read the drawing.** By default it is the mating face of that connector; tick
 `Rear view` to see it from the wire entry side, where both pins and sockets are
@@ -117,10 +126,34 @@ research project:
 | `source/shell_sizes.csv`, `classes.csv`, `contact_styles.csv`, `connector_styles.csv` | part-number decoding |
 | `source/polarization.csv` | series III minor key angles |
 | `source/series_iii_interface.csv` | shell bore, keyway and insert diameters |
+| `source/glenair_806_contacts.csv` | Glenair 806 contact coordinates and sizes |
 
-166 arrangements and 6114 contacts are extracted. The build validates every
+166 D38999 arrangements and 6114 contacts are extracted. The build validates every
 arrangement's coordinate count against the contact count printed in its own summary
 table, and prints any mismatch; there are currently none.
+
+### Glenair 806
+
+`source/glenair_806_contacts.csv` is made by `extract_806.py`, which reads the X/Y
+location tables in Glenair's [Series 806 PCB layouts and footprints][806pcb] appendix
+(rev 10.29.25). It needs PyMuPDF and only has to be rerun if that document changes:
+
+```
+python extract_806.py pcb-layouts-and-footprints.pdf
+```
+
+Each table is accepted only if its contact complement matches 806-015 Table I exactly
+(count per size, no repeated IDs, numbered contacts 1..N). In combination inserts the
+lettered contacts are the large ones. That gives 26 of the 67 arrangements. The other 41
+are dimensioned on their drawings rather than tabulated, so they are not included yet,
+mostly the small shells plus 16-60, 18-85, 20-110, 22-140, 24-186, 16-22, 22-44 and 24-97.
+The #22HD and #20HD contacts are drawn at the size 22 and 20 cavity diameters.
+
+- **806 24-35 contact 13** is tabulated as (-.170, -.468), X and Y swapped. The drawing
+  places it on the outer ring between 12 and 14 at (-.468, -.170), mirroring contact 6,
+  so the build corrects it and reports the correction in the notes bar.
+
+[806pcb]: https://cdn.glenair.com/mil-aero-connectors/pdf/appendix/pcb-layouts-and-footprints.pdf
 
 ### Known source handling
 
@@ -160,4 +193,5 @@ number that decodes cleanly is not necessarily a part anyone builds.
 | `app.js` | decoding, geometry, drawing, interaction |
 | `data.js` | generated data (do not edit) |
 | `build_data.py` | regenerates `data.js` |
-| `source/` | build inputs (copies from the research project) |
+| `extract_806.py` | regenerates `source/glenair_806_contacts.csv` from the Glenair PDF |
+| `source/` | build inputs (copies from the research project, plus the 806 extract) |

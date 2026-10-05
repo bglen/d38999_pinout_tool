@@ -3,10 +3,12 @@
 Coordinates come from MIL-STD-1560C w/Change 3 (front face of the PIN insert).
 Decode tables, shell interface dimensions and Series III polarization come from
 the reviewed CSVs in source/, which were extracted from MIL-DTL-38999N.
+Glenair Series 806 coordinates come from source/glenair_806_contacts.csv
+(see extract_806.py).
 
 Run:  python build_data.py
 """
-import csv, json, re, collections
+import csv, json, re, sys, collections
 from pathlib import Path
 
 HERE = ROOT = Path(__file__).resolve().parent
@@ -283,6 +285,8 @@ CONTACT_DIMS = {
     "20": dict(cavity=.049, pin=.040), "16": dict(cavity=.071, pin=.0625),
     "12": dict(cavity=.103, pin=.094), "10": dict(cavity=.134, pin=.125),
     "8": dict(cavity=.227, pin=.218),
+    # Glenair 806 high-density contacts: drawn at the size 22 / 20 diameters.
+    "22HD": dict(cavity=.036, pin=.030), "20HD": dict(cavity=.049, pin=.040),
 }
 # MIL-DTL-38999N Figure 6, millimetres.
 KEYS = dict(receptacle_main=3.20, receptacle_minor=1.60, plug_main=2.54, plug_minor=1.32)
@@ -313,16 +317,48 @@ for key in sorted(set(coords) | set(ALIASES), key=lambda k: tuple(int(v) for v i
     if unknown_sizes:
         warnings.append(f"{key}: no diameter for contact size(s) {unknown_sizes}")
     arrangements[key] = dict(
-        shell=shell, no=no, count=len(contacts),
+        family="D38999", shell=shell, no=no, count=len(contacts),
         groups=m["groups"] if m else [],
         pages=(m or {}).get("pages") or arr_pages.get(src, []),
         alias=src if src != key else None,
         contacts=[[c["id"], c["x"], c["y"], c["size"]] for c in contacts])
 
+# --------------------------------------------------------------------------
+# Glenair Series 806 (source/glenair_806_contacts.csv, made by extract_806.py)
+# --------------------------------------------------------------------------
+# Same convention as MIL-STD-1560C: inches, pin insert mating face, +Y to the
+# master key.  Keys carry an "806:" prefix; arrangement numbers overlap D38999's.
+CORRECTIONS_806 = {
+    ("24-35", "13"): ((-0.170, -0.468), (-0.468, -0.170),
+                      "the 806 PCB layout table swaps X and Y; its drawing puts 13 between "
+                      "12 and 14 on the outer ring, mirroring 6 at (.468, -.170)"),
+}
+g806 = collections.defaultdict(list)
+for r in csv.DictReader(open(SOURCE / "glenair_806_contacts.csv", encoding="utf-8")):
+    g806[r["arrangement"]].append(r)
+for arr_no, rs in g806.items():
+    contacts = []
+    for r in rs:
+        x, y = float(r["x_in"]), float(r["y_in"])
+        fix = CORRECTIONS_806.get((arr_no, r["id"]))
+        if fix:
+            if (x, y) != fix[0]:
+                sys.exit(f"806 {arr_no} contact {r['id']}: expected {fix[0]} to correct, found {(x, y)}")
+            x, y = fix[1]
+            applied.append(f"806:{arr_no} contact {r['id']}: {fix[0]} -> {fix[1]} ({fix[2]})")
+        contacts.append([r["id"], x, y, r["size"]])
+    sizes = collections.Counter(c[3] for c in contacts)
+    shell, no = arr_no.split("-")
+    arrangements["806:" + arr_no] = dict(
+        family="806", shell=int(shell), no=no, count=len(contacts),
+        groups=[dict(count=n, size=s, rating="", locations="") for s, n in sizes.items()],
+        pages=sorted({int(r["pdf_page"]) for r in rs}), alias=None, contacts=contacts)
+
 payload = dict(
     generated=__import__("datetime").date.today().isoformat(),
     sources=["MIL-STD-1560C w/CHANGE 3 (insert arrangements)",
-             "MIL-DTL-38999N w/AMENDMENT 2 (decode tables, interface dimensions, Series III keying)"],
+             "MIL-DTL-38999N w/AMENDMENT 2 (decode tables, interface dimensions, Series III keying)",
+             "Glenair Series 806 Mil-Aero PCB layouts and footprints, rev 10.29.25 (806 arrangements)"],
     corrections=applied,
     warnings=warnings,
     shellSizes=shell_sizes, classes=classes, contactStyles=contact_styles,

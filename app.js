@@ -68,6 +68,14 @@ function readable(hex) {
 
 function titleCase(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
 
+/* ------------------------------------------------------- arrangement keys */
+
+/* D38999 arrangements are keyed "16-35"; Glenair 806 ones "806:16-32", since the
+   two catalogues reuse arrangement numbers for different layouts. */
+const is806 = (key) => !!key && key.startsWith('806:');
+const arrNumber = (key) => (is806(key) ? key.slice(4) : key);
+const arrName = (key) => (is806(key) ? `Glenair 806 ${arrNumber(key)}` : key);
+
 /* ---------------------------------------------------------------- decoding */
 
 const PIN_RE = /^(\d{2})([A-Z]{2}-|[A-Z])([A-HJ])(\d{1,2})([A-Z])([A-Z])$/;
@@ -163,14 +171,15 @@ function contactRadii(pts, dia) {
 
 /* MIL-STD-1560C designation order: capitals without I O Q, then lower case,
    then doubled capitals.  Numbers lead a purely numeric arrangement and follow
-   the letters in a mixed one, which is how the standard continues its lists. */
+   the letters in a mixed one, which is how the standard continues its lists.
+   Glenair 806 combination inserts list the numbered contacts first. */
 const UPSEQ = 'ABCDEFGHJKLMNPRSTUVWXYZ';
 const LOSEQ = 'abcdefghijkmnpqrstuvwxyz';
 
-function idRanker(ids) {
+function idRanker(ids, numbersFirst) {
   const anyAlpha = ids.some((id) => /[A-Za-z]/.test(id));
   return (id) => {
-    if (/^\d+$/.test(id)) return (anyAlpha ? 4000 : 0) + Number(id);
+    if (/^\d+$/.test(id)) return (anyAlpha && !numbersFirst ? 4000 : 0) + Number(id);
     const c = id[0];
     const lower = c >= 'a' && c <= 'z';
     const seq = lower ? LOSEQ : UPSEQ;
@@ -182,7 +191,7 @@ function idRanker(ids) {
 function prepare(arrKey, mirror) {
   const a = DATA.arrangements[arrKey];
   const sign = mirror ? -1 : 1;
-  const rank = idRanker(a.contacts.map((c) => c[0]));
+  const rank = idRanker(a.contacts.map((c) => c[0]), a.family === '806');
   const ordered = a.contacts.slice().sort((p, q) => rank(p[0]) - rank(q[0]));
   const pts = ordered.map(([id, x, y, size]) => ({ id, size, x: sign * x * MM, y: -y * MM }));
   const dia = ordered.map(([, , , size]) => {
@@ -222,7 +231,7 @@ function slotPath(angleRad, width, r0, r1) {
  */
 function shellLayout(decoded, arr) {
   const shell = arr.meta.shell;
-  const dims = DATA.interface[String(shell)];
+  const dims = arr.meta.family === '806' ? null : DATA.interface[String(shell)];
   const plug = !!decoded && decoded.style.kind === 'plug';
   const normal = DATA.polarization.find((p) => p.sizes.includes(shell) && p.position === 'N');
   const angles = decoded ? (decoded.angles || []) : ((normal && normal.angles) || []);
@@ -231,7 +240,8 @@ function shellLayout(decoded, arr) {
 
   if (!dims) {
     // MIL-DTL-38999N tabulates shell interface dimensions for odd (series I/III/IV)
-    // shell sizes only; even sizes are series II and are drawn without a shell.
+    // shell sizes only; even sizes are series II and are drawn without a shell, as
+    // are Glenair 806 inserts, whose shells are not in the data.
     const rIns = arr.reach * 1.14;
     return { plug, fallback: true, rIns, rBore: rIns, rShell: rIns * 1.08, rKey: rIns * 1.2,
              keys: [{ deg: 0, label: 'Main', width: rIns * 0.16 }], cw: plug };
@@ -594,7 +604,26 @@ function renderDecode() {
   banner.hidden = true;
   banner.className = 'banner';
   const d = state.decoded;
+  const fact = (k, v) => box.appendChild(html('div', { class: 'fact' },
+    [html('span', { text: k }), html('b', { text: v })]));
+  const complement = (a) => a.groups.map((g) => `${g.count} × size ${g.size}` +
+    (g.locations && !/^all/i.test(g.locations) ? ` (${g.locations})` : '')).join('; ');
 
+  if (!d && is806(state.arrKey)) {
+    const a = DATA.arrangements[state.arrKey];
+    box.hidden = false;
+    fact('Series', 'Glenair 806 Mil-Aero');
+    fact('Arrangement', `${arrNumber(state.arrKey)} — ${a.count} contacts`);
+    fact('Complement', complement(a));
+    fact('Source', `Glenair 806 PCB layouts, PDF p ${a.pages.join(', ')}`);
+    const notes = arrangementNotes(state.arrKey);
+    if (notes.length) {
+      banner.hidden = false;
+      banner.appendChild(html('strong', { text: 'Notes' }));
+      banner.appendChild(html('ul', {}, notes.map((w) => html('li', { text: w }))));
+    }
+    return;
+  }
   if (!d) { box.hidden = true; return; }
   if (d.error) {
     box.hidden = true;
@@ -604,9 +633,6 @@ function renderDecode() {
     return;
   }
   box.hidden = false;
-  const fact = (k, v) => box.appendChild(html('div', { class: 'fact' },
-    [html('span', { text: k }), html('b', { text: v })]));
-
   const a = d.arr;
   fact('Series', `MIL-DTL-38999 Series ${d.style.series}`);
   fact('Sheet', `/${d.slash} — ${titleCase(d.style.kind)}, ${d.style.mounting}`);
@@ -616,8 +642,7 @@ function renderDecode() {
   fact('Arrangement', `${d.arrangement} — ${a.count} contacts`);
   fact('Contacts', `${d.contact} — ${d.contactStyle.gender}, ${d.contactStyle.description}`);
   fact('Polarization', d.position + (d.angles ? ` — ${d.angles.join('°, ')}°` : ''));
-  const sizes = a.groups.map((g) => `${g.count} × size ${g.size}` +
-    (g.locations && !/^all/i.test(g.locations) ? ` (${g.locations})` : '')).join('; ');
+  const sizes = complement(a);
   if (sizes) fact('Complement', sizes);
   const rating = a.groups.map((g) => g.rating).filter(Boolean).join(' / ');
   if (rating) fact('Service rating', rating);
@@ -1040,8 +1065,8 @@ function carryPins(arrKey) {
       const s = state.pins[id].signal;
       return isNC(s) ? id : `${id} (${s})`;
     }).join(', ') + (lost.length > 24 ? `, and ${lost.length - 24} more` : '');
-    const ok = confirm(`Arrangement ${arrKey} has ${to.length} contacts, ${from.length - to.length} fewer than ` +
-                       `${state.arrKey}.\n\nThe data on these ${lost.length} contact(s) will be deleted:\n${list}\n\n` +
+    const ok = confirm(`Arrangement ${arrName(arrKey)} has ${to.length} contacts, ${from.length - to.length} fewer than ` +
+                       `${arrName(state.arrKey)}.\n\nThe data on these ${lost.length} contact(s) will be deleted:\n${list}\n\n` +
                        'Continue?');
     if (!ok) return false;
   }
@@ -1247,12 +1272,14 @@ function exportPng() {
 
 /* The drawing's title is the decoded part number unless the user has overridden it,
    e.g. for another maker's connector with the same insert arrangement. */
-const decodedTitle = () => (state.pn ? `D38999/${state.pn}` : `Insert arrangement ${state.arrKey}`);
+const decodedTitle = () => (state.pn ? `D38999/${state.pn}`
+  : is806(state.arrKey) ? `Glenair 806 arrangement ${arrNumber(state.arrKey)}`
+  : `Insert arrangement ${state.arrKey}`);
 const outputTitle = () => state.pnOverride || decodedTitle();
 
-const fileBase = () => (state.pnOverride
-  ? state.pnOverride.replace(/[\\/:*?"<>|\s]+/g, '-').replace(/^-+|-+$/g, '')
-  : state.pn ? 'D38999-' + state.pn : 'arrangement-' + state.arrKey) + '-pinout';
+const fileBase = () => (state.pnOverride || (state.pn ? 'D38999-' + state.pn
+  : is806(state.arrKey) ? arrName(state.arrKey) : 'arrangement-' + state.arrKey))
+  .replace(/[\\/:*?"<>|\s]+/g, '-').replace(/^-+|-+$/g, '') + '-pinout';
 
 function setOverride(value) {
   state.pnOverride = (value || '').trim();
@@ -1314,6 +1341,7 @@ function viewNote() {
  * Null for the even (Series II) shell sizes, which have no D38999 shell code.
  */
 function partNumberFor(arrKey) {
+  if (is806(arrKey)) return null;
   const [shell, no] = arrKey.split('-').map(Number);
   const code = Object.keys(DATA.shellSizes).find((c) => DATA.shellSizes[c] === shell);
   if (!code) return null;
@@ -1344,14 +1372,17 @@ function submitPin(opts) {
 
 function init() {
   const pick = $('#arr-pick');
-  const keys = Object.keys(DATA.arrangements)
-    .sort((a, b) => a.split('-').map(Number)[0] - b.split('-').map(Number)[0] ||
-                    a.split('-').map(Number)[1] - b.split('-').map(Number)[1]);
+  // D38999 by shell size, then the Glenair 806 arrangements in one group.
+  const order = (k) => [is806(k) ? 1 : 0, ...arrNumber(k).split('-').map((v) => parseInt(v, 10))];
+  const keys = Object.keys(DATA.arrangements).sort((a, b) => {
+    const p = order(a), q = order(b);
+    return p[0] - q[0] || p[1] - q[1] || p[2] - q[2] || a.localeCompare(b);
+  });
   let group = null, last = null;
   for (const k of keys) {
-    const shell = Number(k.split('-')[0]);
-    if (shell !== last) { group = html('optgroup', { label: `Shell ${shell}` }); pick.appendChild(group); last = shell; }
-    group.appendChild(html('option', { value: k, text: `${k} (${DATA.arrangements[k].count})` }));
+    const label = is806(k) ? 'Glenair 806' : `Shell ${DATA.arrangements[k].shell}`;
+    if (label !== last) { group = html('optgroup', { label }); pick.appendChild(group); last = label; }
+    group.appendChild(html('option', { value: k, text: `${arrNumber(k)} (${DATA.arrangements[k].count})` }));
   }
   pick.addEventListener('change', () => {
     if (!pick.value) return;
@@ -1363,6 +1394,7 @@ function init() {
     }
     if (!loadArrangement(pick.value, null, '')) { pick.value = state.arrKey || ''; return; }
     $('#pn').value = '';
+    if (is806(pick.value)) return;
     const banner = $('#banner');
     banner.hidden = false;
     banner.className = 'banner';
